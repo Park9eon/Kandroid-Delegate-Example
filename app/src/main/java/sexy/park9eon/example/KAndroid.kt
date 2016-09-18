@@ -60,17 +60,19 @@ fun <T, R> TextView.text(thisRef: T, property: KMutableProperty1<T, R>) {
     }
 }
 
-fun <T, R> TextView.visibility(thisRef: T, property: KMutableProperty1<T, R>) {
+fun <T, R> TextView.visible(thisRef: T, property: KMutableProperty1<T, R>) {
     val model = property.getModel(thisRef)
     this.visibility = when (model?.getValue()) {
         View.GONE -> View.GONE
         View.INVISIBLE -> View.INVISIBLE
+        false -> View.GONE
         else -> View.VISIBLE
     }
     model?.setter {
         this.visibility = when (it) {
             View.GONE -> View.GONE
             View.INVISIBLE -> View.INVISIBLE
+            false -> View.GONE
             else -> View.VISIBLE
         }
     }
