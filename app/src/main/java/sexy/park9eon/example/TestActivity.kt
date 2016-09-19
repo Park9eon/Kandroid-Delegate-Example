@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.activity_test.*
+import sexy.park9eon.android.*
 import kotlin.reflect.KClass
 
 class TestActivity : AppCompatActivity() {
@@ -16,10 +17,12 @@ class TestActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test)
         val viewModel = ViewModel()
+
         textView.text(viewModel, ViewModel::model, SomeModel::count, SonModel::count)
         button.text(viewModel, ViewModel::message)
         button.click(viewModel, ViewModel::upCount)
         textView.visible(viewModel, ViewModel::visible)
+        editText.text(viewModel, ViewModel::message)
     }
 
     // 이것을 활용해서 바인딩합시다.
@@ -37,7 +40,7 @@ fun FragmentActivity.attach(id: Int, cls: KClass<Fragment>, tag: String, addToSt
     _fragment = manager.findFragmentByTag(tag)
     val transaction = if (_fragment == null) {
         manager.beginTransaction()
-               .add(id, cls.objectInstance, tag)
+              .add(id, cls.objectInstance, tag)
     } else {
         manager.beginTransaction().attach(_fragment)
     }
