@@ -43,6 +43,28 @@ class Model<T: Any>() {
 
 }
 
+private fun View.bind(thisRef: Any, vararg properties: KMutableProperty1<*, *>, bind: (Any?)->Unit) {
+
+    val size = properties.size - 1
+    val first = properties.first()
+    val model = first.getModel(thisRef)
+    val value = model?.getValue()
+
+    if (size == 0) {
+        bind(value)
+        model?.setter {
+            bind(it)
+        }
+    } else if (size > 0 && value != null) {
+        this.bind(value, *properties.slice(1..size).toTypedArray(), bind = bind)
+        model?.setter {
+            if (it != null) {
+                this.bind(it, *properties.slice(1..size).toTypedArray(), bind = bind)
+            }
+        }
+    }
+}
+
 fun <T> View.click(thisRef: T, function: KFunction<Unit>) {
     this.setOnClickListener {
         when (function.parameters.size) {
@@ -52,33 +74,30 @@ fun <T> View.click(thisRef: T, function: KFunction<Unit>) {
     }
 }
 
-fun <T, R> TextView.text(thisRef: T, property: KMutableProperty1<T, R>) {
-    val model = property.getModel(thisRef)
-    this.text = model?.getValue() as? CharSequence
-    model?.setter {
+fun TextView.text(thisRef: Any, vararg properties: KMutableProperty1<*, *>) {
+    this.bind(thisRef, *properties) {
         this.text = it as? CharSequence
     }
 }
 
-fun <T, R> TextView.visible(thisRef: T, property: KMutableProperty1<T, R>) {
-    val model = property.getModel(thisRef)
-    this.visibility = when (model?.getValue()) {
+
+
+fun TextView.visible(thisRef: Any, vararg properties: KMutableProperty1<*, *>) {
+    this.bind(thisRef, *properties) {
+        this.visible(it)
+    }
+}
+
+private fun TextView.visible(any: Any?) {
+    this.visibility = when (any) {
         View.GONE -> View.GONE
         View.INVISIBLE -> View.INVISIBLE
         false -> View.GONE
         else -> View.VISIBLE
     }
-    model?.setter {
-        this.visibility = when (it) {
-            View.GONE -> View.GONE
-            View.INVISIBLE -> View.INVISIBLE
-            false -> View.GONE
-            else -> View.VISIBLE
-        }
-    }
 }
 
-fun <T, R> KMutableProperty1<T, R>.getModel(thisRef: T): Model<*>? {
+fun KMutableProperty1<*, *>.getModel(thisRef: Any): Model<*>? {
     this.javaField?.isAccessible = true
     return this.javaField?.get(thisRef) as? Model<*>
 }
