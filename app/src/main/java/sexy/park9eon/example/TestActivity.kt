@@ -37,7 +37,7 @@ fun FragmentActivity.attach(id: Int, cls: KClass<Fragment>, tag: String, addToSt
     _fragment = manager.findFragmentByTag(tag)
     val transaction = if (_fragment == null) {
         manager.beginTransaction()
-                .add(id, cls.objectInstance, tag)
+               .add(id, cls.objectInstance, tag)
     } else {
         manager.beginTransaction().attach(_fragment)
     }

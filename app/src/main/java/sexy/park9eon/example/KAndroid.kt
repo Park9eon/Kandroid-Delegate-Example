@@ -43,6 +43,7 @@ class Model<T: Any>() {
 
 }
 
+// TODO 재귀로 더 간단한 코드로 변경!
 private fun View.bind(thisRef: Any, vararg properties: KMutableProperty1<*, *>, bind: (Any?)->Unit) {
 
     val size = properties.size - 1
