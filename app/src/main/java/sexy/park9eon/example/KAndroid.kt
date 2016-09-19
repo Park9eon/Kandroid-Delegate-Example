@@ -76,11 +76,9 @@ fun <T> View.click(thisRef: T, function: KFunction<Unit>) {
 
 fun TextView.text(thisRef: Any, vararg properties: KMutableProperty1<*, *>) {
     this.bind(thisRef, *properties) {
-        this.text = it as? CharSequence
+        this.text = "$it"
     }
 }
-
-
 
 fun TextView.visible(thisRef: Any, vararg properties: KMutableProperty1<*, *>) {
     this.bind(thisRef, *properties) {

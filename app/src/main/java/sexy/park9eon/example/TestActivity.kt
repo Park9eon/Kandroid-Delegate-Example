@@ -16,7 +16,7 @@ class TestActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test)
         val viewModel = ViewModel()
-        textView.text(viewModel, ViewModel::model, SomeModel::count)
+        textView.text(viewModel, ViewModel::model, SomeModel::count, SonModel::count)
         button.text(viewModel, ViewModel::message)
         button.click(viewModel, ViewModel::upCount)
         textView.visible(viewModel, ViewModel::visible)
@@ -60,22 +60,25 @@ class ViewModel() {
     var count = 0
     var message by Model("hello, world") // Int model
     var visible by Model(true)
-    var model: SomeModel? by Model()
-
-    init {
-        this.model = SomeModel()
-    }
+    var model by Model(SomeModel())
 
     fun upCount() {
-        this.model?.count = "${++count}"
+        this.model?.count?.count = "${++count}"
         visible = count % 3 != 0
         if (count == 10) {
             // this.visible = null
             this.model = SomeModel()
         }
+        if (count == 14) {
+            this.model?.count = SonModel(1234)
+        }
     }
 }
 
 class SomeModel() {
-    var count by Model("")
+    var count by Model(SonModel(123))
+}
+
+class SonModel(defaultInt: Int) {
+    var count by Model("$defaultInt")
 }
