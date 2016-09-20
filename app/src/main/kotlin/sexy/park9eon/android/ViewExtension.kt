@@ -1,12 +1,12 @@
 package sexy.park9eon.android
 
 import android.text.Editable
+import android.text.Html
+import android.text.Spannable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.widget.CompoundButton
 import android.widget.EditText
-import android.widget.RadioButton
 import android.widget.TextView
 import kotlin.reflect.KFunction
 import kotlin.reflect.KMutableProperty1
@@ -54,7 +54,12 @@ fun TextView.text(thisRef: Any, vararg properties: KMutableProperty1<*, *>) {
 
 fun TextView.html(thisRef: Any, vararg properties: KMutableProperty1<*, *>) {
     this.bind(thisRef, *properties) {
-        this.text = "$it"
+        val spannable = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            Html.fromHtml("$it", Html.FROM_HTML_MODE_LEGACY) as Spannable
+        } else {
+            Html.fromHtml("$it") as Spannable
+        }
+        this.setText(spannable, TextView.BufferType.SPANNABLE)
     }
 }
 

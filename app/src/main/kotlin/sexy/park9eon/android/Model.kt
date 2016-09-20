@@ -41,7 +41,6 @@ class Model<T: Any>() {
 
 }
 
-
 fun KMutableProperty1<*, *>.getModel(thisRef: Any): Model<*>? {
     this.javaField?.isAccessible = true
     return this.javaField?.get(thisRef) as? Model<*>

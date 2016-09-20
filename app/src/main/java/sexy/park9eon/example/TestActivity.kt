@@ -18,7 +18,7 @@ class TestActivity : AppCompatActivity() {
         setContentView(R.layout.activity_test)
         val viewModel = ViewModel()
 
-        textView.text(viewModel, ViewModel::message)
+        textView.html(viewModel, ViewModel::message)
         button.text(viewModel, ViewModel::message)
         button.click(viewModel, ViewModel::upCount)
         textView.visible(viewModel, ViewModel::visible)
