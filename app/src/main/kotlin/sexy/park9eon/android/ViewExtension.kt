@@ -4,7 +4,9 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
+import android.widget.CompoundButton
 import android.widget.EditText
+import android.widget.RadioButton
 import android.widget.TextView
 import kotlin.reflect.KFunction
 import kotlin.reflect.KMutableProperty1
@@ -12,7 +14,6 @@ import kotlin.reflect.KMutableProperty1
 /**
  * Created by park9eon on 9/19/16.
  */
-
 fun View.bind(thisRef: Any, vararg properties: KMutableProperty1<*, *>, listener: ((Model<Any>?)->Unit)? = null, binding: (Any?)->Unit) {
 
     val size = properties.size - 1
@@ -51,23 +52,20 @@ fun TextView.text(thisRef: Any, vararg properties: KMutableProperty1<*, *>) {
     }
 }
 
+fun TextView.html(thisRef: Any, vararg properties: KMutableProperty1<*, *>) {
+    this.bind(thisRef, *properties) {
+        this.text = "$it"
+    }
+}
+
 fun EditText.text(thisRef: Any, vararg properties: KMutableProperty1<*, *>) {
-
+    var textChangeListener: BindTextWatcher? = null
     val textWatcher: ((Model<Any>?)->Unit)? = {
-        this.addTextChangedListener(object: TextWatcher {
-
-            override fun afterTextChanged(p0: Editable?) {
-
-            }
-
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-            }
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                it?.setValue("$p0")
-            }
-        })
+        textChangeListener?.let {
+            this.removeTextChangedListener(it)
+        }
+        textChangeListener = BindTextWatcher(it)
+        this.addTextChangedListener(textChangeListener)
     }
     this.bind(thisRef, *properties, listener = textWatcher) {
         if (!"${this.text}".equals("$it")) {
@@ -76,17 +74,45 @@ fun EditText.text(thisRef: Any, vararg properties: KMutableProperty1<*, *>) {
     }
 }
 
-fun TextView.visible(thisRef: Any, vararg properties: KMutableProperty1<*, *>) {
-    this.bind(thisRef, *properties) {
-        this.visible(it)
+class BindTextWatcher(val model: Model<Any>?) : TextWatcher {
+
+    override fun afterTextChanged(p0: Editable?) {
+
+    }
+
+    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+    }
+
+    override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+        if (!"${model?.getValue()}".equals("$p0")) {
+            model?.setValue("$p0")
+        }
     }
 }
 
-fun TextView.visible(any: Any?) {
-    this.visibility = when (any) {
-        View.GONE -> View.GONE
-        View.INVISIBLE -> View.INVISIBLE
-        false -> View.GONE
-        else -> View.VISIBLE
+fun View.visible(thisRef: Any, vararg properties: KMutableProperty1<*, *>) {
+    this.bind(thisRef, *properties) {
+        this.visibility = when (it) {
+            View.GONE -> View.GONE
+            View.INVISIBLE -> View.INVISIBLE
+            false -> View.GONE
+            else -> View.VISIBLE
+        }
+    }
+}
+
+fun CompoundButton.checked(thisRef: Any, vararg properties: KMutableProperty1<*, *>) {
+    val onCheckedChange: ((Model<Any>?)->Unit)? = {
+        this.setOnCheckedChangeListener { compoundButton, b ->
+            if (it?.getValue() is Boolean && it?.getValue() != compoundButton.isChecked) {
+                it?.setValue(compoundButton.isChecked)
+            }
+        }
+    }
+    this.bind(thisRef, *properties, listener = onCheckedChange) {
+        if (it is Boolean && it != this.isChecked) {
+            this.isChecked = it
+        }
     }
 }

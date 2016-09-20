@@ -18,11 +18,13 @@ class TestActivity : AppCompatActivity() {
         setContentView(R.layout.activity_test)
         val viewModel = ViewModel()
 
-        textView.text(viewModel, ViewModel::model, SomeModel::count, SonModel::count)
+        textView.text(viewModel, ViewModel::message)
         button.text(viewModel, ViewModel::message)
         button.click(viewModel, ViewModel::upCount)
         textView.visible(viewModel, ViewModel::visible)
         editText.text(viewModel, ViewModel::message)
+        radio.checked(viewModel, ViewModel::visible)
+
     }
 
     // 이것을 활용해서 바인딩합시다.
@@ -66,8 +68,8 @@ class ViewModel() {
     var model by Model(SomeModel())
 
     fun upCount() {
-        this.model?.count?.count = "${++count}"
-        visible = count % 3 != 0
+        this.model?.count?.count?.plus(1)
+        visible = count++ % 3 != 0
         if (count == 10) {
             // this.visible = null
             this.model = SomeModel()
@@ -83,5 +85,5 @@ class SomeModel() {
 }
 
 class SonModel(defaultInt: Int) {
-    var count by Model("$defaultInt")
+    var count by Model(defaultInt)
 }
