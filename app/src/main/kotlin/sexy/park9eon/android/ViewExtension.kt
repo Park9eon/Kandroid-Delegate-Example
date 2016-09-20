@@ -5,9 +5,7 @@ import android.text.Html
 import android.text.Spannable
 import android.text.TextWatcher
 import android.view.View
-import android.widget.CompoundButton
-import android.widget.EditText
-import android.widget.TextView
+import android.widget.*
 import kotlin.reflect.KFunction
 import kotlin.reflect.KMutableProperty1
 
@@ -81,13 +79,9 @@ fun EditText.text(thisRef: Any, vararg properties: KMutableProperty1<*, *>) {
 
 class BindTextWatcher(val model: Model<Any>?) : TextWatcher {
 
-    override fun afterTextChanged(p0: Editable?) {
+    override fun afterTextChanged(p0: Editable?) { }
 
-    }
-
-    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-    }
+    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) { }
 
     override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
         if (!"${model?.getValue()}".equals("$p0")) {
@@ -118,6 +112,29 @@ fun CompoundButton.checked(thisRef: Any, vararg properties: KMutableProperty1<*,
     this.bind(thisRef, *properties, listener = onCheckedChange) {
         if (it is Boolean && it != this.isChecked) {
             this.isChecked = it
+        }
+    }
+}
+
+fun SeekBar.progress(thisRef: Any, vararg properties: KMutableProperty1<*, *>) {
+    var onProgressChanged: ((Model<Any>?)->Unit)? = {
+        this.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+
+            override fun onProgressChanged(p0: SeekBar, p1: Int, p2: Boolean) {
+                if (it?.getValue() is Int && it?.getValue() != p0.progress) {
+                    it?.setValue(p0.progress)
+                }
+            }
+
+            override fun onStartTrackingTouch(p0: SeekBar?) { }
+
+            override fun onStopTrackingTouch(p0: SeekBar?) { }
+
+        })
+    }
+    this.bind(thisRef, *properties, listener = onProgressChanged) {
+        if (it is Int && it != this.progress) {
+            this.progress = it
         }
     }
 }
